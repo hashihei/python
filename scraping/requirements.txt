@@ -1,0 +1,8 @@
+###### Requirements without Version Specifiers ######
+numpy
+selenium
+beautifulsoup4
+pytest
+
+###### Requirements Version
+chromedriver-binary==79.0.3945.36
