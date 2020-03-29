@@ -1,17 +1,5 @@
-jobs:
-  build:
-    docker:
-      - image: google/cloud-sdk:latest
-    working_directory: ~/circleci/google_app_engine
-    steps:
-      - checkout
-      - gcp-cli/initialize
-      - run:
-        name: Deploy to Google App Engine
-        command: |
-          gcloud --quiet app deploy ~/circleci/google_app_engine/app.yaml
 orbs:
-  cloudrun: circleci/gcp-cli@1.8.4
+  gcp-cli: circleci/gcp-cli@1.8.4
 version: 2.1
 workflows:
   install_and_configure_cli:
@@ -19,3 +7,14 @@ workflows:
       - gcp-cli/install_and_initialize_cli:
           context: myContext
           executor: gcp-cli/default
+jobs:
+  builds:
+    docker:
+      - image: google/cloud-sdk:latest
+    working_directory: ~/circleci/google_app_engine
+    steps:
+      - gcp-cli/initialize
+      - run:
+        name: Deploy to Google App Engine
+        command: |
+          gcloud --quiet app deploy ~/circleci/google_app_engine/app.yaml
