@@ -8,18 +8,19 @@ workflows:
   install_and_configure_cli:
     jobs:
       #default executor
-      - gcp-cli/install_default:
-          context: hashiheiContext
-          executor: gcp-cli/default
-          steps:
-            - gcp-cli/install
-      #google cloud image
-      - gcp-cli/install_gcp:
+      install-default:
+      #    context: hashiheiContext
+        executor: gcp-cli/default
         steps:
-          context: hashiheiContext
-          executor: gcp-cli/google
-          steps:
-            - gcp-cli/install
+          - gcp-cli/install
+      #google cloud image
+      install-google:
+        steps:
+        #  context: hashiheiContext
+        executor: gcp-cli/google
+        steps:
+          - gcp-cli/install
+
 jobs:
   build:
     docker:
