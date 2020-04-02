@@ -14,3 +14,10 @@ jobs:
     working_directory: ~/project
     steps:
       - checkout
+      - gcp-cli/initialize
+      - run:
+        name: Deploy to Google App Engine
+        command: |
+          ls -ltr
+          tree
+          gcloud --quiet app deploy ~/circleci/google_app_engine/app.yaml
