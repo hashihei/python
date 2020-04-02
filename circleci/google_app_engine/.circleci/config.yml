@@ -9,6 +9,8 @@ jobs:
       - run:
         name: Deploy to Google App Engine
         command: |
+          ls -ltr
+          tree
           gcloud --quiet app deploy ~/circleci/google_app_engine/app.yaml
 orbs:
   cloudrun: circleci/gcp-cli@1.8.4
