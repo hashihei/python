@@ -6,7 +6,7 @@ workflows:
     jobs:
       - gcp-cli/install_and_initialize_cli:
           context: hashiheiContext
-          executor: gcp-cli/default
+          executor: gcp-cli/default 
 jobs:
   build:
     docker:
@@ -14,4 +14,11 @@ jobs:
     working_directory: ~/project
     steps:
       - checkout
-     
+      - run:
+          name: check time.
+          command:  'date'
+      - run:
+          name: check directory.
+          command: |
+            ls -ltr
+            tree
