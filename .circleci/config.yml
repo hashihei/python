@@ -1,12 +1,25 @@
+version: 2.1
+
+#名前空間にgcpをインポート
 orbs:
   gcp-cli: circleci/gcp-cli@1.8.4
-version: 2.1
+
 workflows:
   install_and_configure_cli:
     jobs:
-      - gcp-cli/install_and_initialize_cli:
+      #default executor
+      - gcp-cli/install_default:
           context: hashiheiContext
-          executor: gcp-cli/default 
+          executor: gcp-cli/default
+          steps:
+            - gcp-cli/install
+      #google cloud image
+      - gcp-cli/install_gcp:
+        steps:
+          context: hashiheiContext
+          executor: gcp-cli/google
+          steps:
+            - gcp-cli/install
 jobs:
   build:
     docker:
