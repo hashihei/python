@@ -7,20 +7,17 @@ orbs:
 workflows:
   install_and_configure_cli:
     jobs:
-      #default executor
-      install-default:
-      #    context: hashiheiContext
-        executor: gcp-cli/default
+      - gcp-cli/install_default:
+          context: hashiheiContext
+          executor: gcp-cli/default
+          steps:
+            - gcp-cli/install
+      - gcp-cli/install_gcp:
         steps:
-          - gcp-cli/install
-      #google cloud image
-      install-google:
-        steps:
-        #  context: hashiheiContext
-        executor: gcp-cli/google
-        steps:
-          - gcp-cli/install
-
+          context: hashiheiContext
+          executor: gcp-cli/default
+          steps:
+            - gcp-cli/install
 jobs:
   build:
     docker:
