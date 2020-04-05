@@ -22,8 +22,8 @@ workflows:
             name: Initialize gcloud CLI to connect to Google Cloud
           - run:
             command: |
-            #check gcloud version
-            gcloud verson
+              #check gcloud version
+              gcloud verson
           name: Gcloud version
 jobs:
   build:
