@@ -33,7 +33,7 @@ jobs:
       - run:
           command: |
             #check gcloud version
-            gcloud verson
+            gcloud version
           name: Gcloud version
       - run:
           name: check time.
