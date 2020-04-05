@@ -4,12 +4,14 @@ version: 2.1
 orbs:
   gcp-cli: circleci/gcp-cli@1.8.4
 
-workflows:
-  jobs:
-    - install_and_configure_cli:
-        context: hashiheiContext
-        steps:
-        - run:
+jobs:
+  build_gcpcli:
+    working_directory: ~/project
+    docker:
+      - image: google/cloud-sdk:latest
+    context: hashiheiContext
+    steps:
+      - run:
           command: |
             # Initialize gcloud CLI
             echo $GCLOUD_SERVICE_KEY
@@ -19,18 +21,19 @@ workflows:
             gcloud --quiet config set project $GOOGLE_PROJECT_ID
             gcloud --quiet config set compute/zone $GOOGLE_COMPUTE_ZONE
           name: Initialize gcloud CLI to connect to Google Cloud
-        - run:
-          command: |
-            #check gcloud version
-            gcloud verson
-          name: Gcloud version
-jobs:
-  build:
+
+  test_gcpcli_ver:
+    working_directory: ~/project
     docker:
       - image: google/cloud-sdk:latest
-    working_directory: ~/project
+    context: hashiheiContext
     steps:
       - checkout
+      - run:
+        command: |
+          #check gcloud version
+          gcloud verson
+        name: Gcloud version
       - run:
           name: check time.
           command: |
@@ -40,3 +43,16 @@ jobs:
           command: |
             ls -ltr
             tree
+      
+workflows:
+  version: 2.1
+  install_and_check:
+    jobs:
+      - build_gcpcli
+      - test_gcpcli_ver:
+          requires:
+            - build_gcpcli
+          filters:
+            branches:
+              only: master
+
