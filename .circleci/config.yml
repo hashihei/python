@@ -9,15 +9,27 @@ workflows:
     jobs:
       - gcp-cli/install_default:
           context: hashiheiContext
-          executor: gcp-cli/default
           steps:
-            - gcp-cli/install
+          - run:
+            command: |
+              # Initialize gcloud CLI
+              echo $GCLOUD_SERVICE_KEY
+              echo $GOOGLE_PROJECT_ID
+              echo $GOOGLE_COMPUTE_ZONE
+              gcloud auth activate-service-account --key-file=$GCLOUD_SERVICE_KEY
+              gcloud --quiet config set project $GOOGLE_PROJECT_ID
+              gcloud --quiet config set compute/zone $GOOGLE_COMPUTE_ZONE
+            name: Initialize gcloud CLI to connect to Google Cloud
       - gcp-cli/install_gcp:
         steps:
           context: hashiheiContext
           executor: gcp-cli/default
           steps:
-            - gcp-cli/install
+          - run:
+            command: |
+            #check gcloud version
+            gcloud verson
+          name: Gcloud version
 jobs:
   build:
     docker:
@@ -27,7 +39,8 @@ jobs:
       - checkout
       - run:
           name: check time.
-          command:  'date'
+          command: |
+          date
       - run:
           name: check directory.
           command: |
