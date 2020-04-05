@@ -50,7 +50,7 @@ workflows:
   install_and_check:
     jobs:
       - build_gcpcli:
-        context: hashiheiContext
+#        context: hashiheiContext
       - test_gcpcli_ver:
           requires:
             - build_gcpcli
