@@ -7,7 +7,7 @@ orbs:
 workflows:
   install_and_configure_cli:
     jobs:
-      - gcp-cli/install_default:
+      - gcp-cli/install_and_configure_cli:
           context: hashiheiContext
           steps:
           - run:
@@ -20,11 +20,6 @@ workflows:
               gcloud --quiet config set project $GOOGLE_PROJECT_ID
               gcloud --quiet config set compute/zone $GOOGLE_COMPUTE_ZONE
             name: Initialize gcloud CLI to connect to Google Cloud
-      - gcp-cli/install_gcp:
-        steps:
-          context: hashiheiContext
-          executor: gcp-cli/default
-          steps:
           - run:
             command: |
             #check gcloud version
