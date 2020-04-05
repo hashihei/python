@@ -11,6 +11,7 @@ jobs:
       - image: google/cloud-sdk:latest
 #    context: hashiheiContext
     steps:
+      - checkout
       - run:
           command: |
             # Initialize gcloud CLI
