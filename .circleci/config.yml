@@ -15,12 +15,12 @@ jobs:
       - run:
           command: |
             # Initialize gcloud CLI
-            echo {$GCLOUD_SERVICE_KEY}
-            echo {$GOOGLE_PROJECT_ID}
-            echo {$GOOGLE_COMPUTE_ZONE}
-            gcloud auth activate-service-account --key-file={$GCLOUD_SERVICE_KEY}
-            gcloud --quiet config set project {$GOOGLE_PROJECT_ID}
-            gcloud --quiet config set compute/zone {$GOOGLE_COMPUTE_ZONE}
+            echo ${GCP_PROJECT_KEY}
+            echo ${GOOGLE_PROJECT_ID}
+            echo ${GOOGLE_COMPUTE_ZONE}
+            gcloud auth activate-service-account --key-file=${GCLOUD_SERVICE_KEY}
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
             gcloud --quiet app deploy ~/circleci/google_app_engine/app.yaml
           name: Initialize gcloud CLI to connect to Google Cloud
 
