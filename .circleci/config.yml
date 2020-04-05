@@ -9,7 +9,7 @@ jobs:
     working_directory: ~/project
     docker:
       - image: google/cloud-sdk:latest
-    context: hashiheiContext
+#    context: hashiheiContext
     steps:
       - run:
           command: |
@@ -26,7 +26,7 @@ jobs:
     working_directory: ~/project
     docker:
       - image: google/cloud-sdk:latest
-    context: hashiheiContext
+#    context: hashiheiContext
     steps:
       - checkout
       - run:
