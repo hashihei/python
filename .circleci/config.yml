@@ -35,7 +35,7 @@ jobs:
       - run:
           name: check time.
           command: |
-          date
+            date
       - run:
           name: check directory.
           command: |
