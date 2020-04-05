@@ -24,7 +24,7 @@ workflows:
             command: |
               #check gcloud version
               gcloud verson
-          name: Gcloud version
+            name: Gcloud version
 jobs:
   build:
     docker:
