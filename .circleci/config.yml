@@ -34,8 +34,8 @@ jobs:
 
   test_gcpcli:
     working_directory: ~/project
- #   docker:
- #     - image: google/cloud-sdk:latest
+    docker:
+      - image: circleci/python
     steps:
       - run:
           command: |
