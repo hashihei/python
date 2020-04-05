@@ -31,10 +31,10 @@ jobs:
     steps:
       - checkout
       - run:
-        command: |
-          #check gcloud version
-          gcloud verson
-        name: Gcloud version
+          command: |
+            #check gcloud version
+            gcloud verson
+          name: Gcloud version
       - run:
           name: check time.
           command: |
