@@ -9,42 +9,40 @@ jobs:
     working_directory: ~/project
     docker:
       - image: google/cloud-sdk:latest
-#    context: hashiheiContext
     steps:
-      - checkout
       - run:
           command: |
             # Initialize gcloud CLI
-            echo $GCP_PROJECT_KEY
-            echo $GCLOUD_SERVICE_KEY
-            echo $GOOGLE_PROJECT_ID
-            echo $GOOGLE_COMPUTE_ZONE
             echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
             gcloud --quiet config set project $GOOGLE_PROJECT_ID
             gcloud --quiet config set compute/zone $GOOGLE_COMPUTE_ZONE
-            gcloud --quiet app deploy ./circleci/google_app_engine/app.yaml
           name: Initialize gcloud CLI to connect to Google Cloud
 
   test_gcpcli_ver:
     working_directory: ~/project
     docker:
       - image: google/cloud-sdk:latest
-#    context: hashiheiContext
     steps:
-      - checkout
       - run:
           command: |
             #check gcloud version
             gcloud version
           name: Gcloud version
       - run:
-          name: check time.
-          command: |
-            date
-      - run:
           name: check directory.
           command: |
             ls -ltr ./circleci/google_app_engine
+
+  deploy_gcpcli:
+      working_directory: ~/project
+      docker:
+        - image: google/cloud-sdk:latest
+      steps:
+        - checkout
+        - run:
+            command: |
+              gcloud --quiet app deploy ./circleci/google_app_engine/app.yaml
+            name: deploy google app engine.
 
       
 workflows:
@@ -58,4 +56,5 @@ workflows:
           filters:
             branches:
               only: master
+      - deploy_gcpcli
 
