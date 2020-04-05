@@ -16,6 +16,7 @@ jobs:
           command: |
             # Initialize gcloud CLI
             echo ${GCP_PROJECT_KEY}
+            echo ${GCLOUD_SERVICE_KEY}
             echo ${GOOGLE_PROJECT_ID}
             echo ${GOOGLE_COMPUTE_ZONE}
             gcloud auth activate-service-account --key-file=${GCLOUD_SERVICE_KEY}
