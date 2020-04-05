@@ -34,14 +34,14 @@ jobs:
 
   test_gcpcli:
     working_directory: ~/project
-    docker:
-      - image: google/cloud-sdk:latest
+ #   docker:
+ #     - image: google/cloud-sdk:latest
     steps:
       - run:
           command: |
-            apt install -y lynx
-            lynx https://develop-270505.appspot.com
-          name: check_url
+            curl -o result.html https://develop-270505.appspot.com
+            cat result.html
+          name: check_webpage
       
 workflows:
   version: 2.1
