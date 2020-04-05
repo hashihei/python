@@ -39,7 +39,7 @@ jobs:
     steps:
       - run:
           command: |
-            apt-get install lynx
+            apt install -y lynx
             lynx https://develop-270505.appspot.com
           name: check_url
       
