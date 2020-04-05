@@ -17,12 +17,6 @@ jobs:
             gcloud --quiet config set project $GOOGLE_PROJECT_ID
             gcloud --quiet config set compute/zone $GOOGLE_COMPUTE_ZONE
           name: Initialize gcloud CLI to connect to Google Cloud
-
-  test_gcpcli_ver:
-#    working_directory: ~/project
-#    docker:
-#      - image: google/cloud-sdk:latest
-    steps:
       - checkout
       - run:
           command: |
@@ -33,31 +27,32 @@ jobs:
           name: check directory.
           command: |
             ls -ltr ./circleci/google_app_engine
+      - run:
+          command: |
+            gcloud --quiet app deploy ./circleci/google_app_engine/app.yaml
+          name: deploy google app engine.
 
-  deploy_gcpcli:
-      working_directory: ~/project
-      docker:
-        - image: google/cloud-sdk:latest
-      steps:
-        - checkout
-        - run:
-            command: |
-              gcloud --quiet app deploy ./circleci/google_app_engine/app.yaml
-            name: deploy google app engine.
-
+  test_gcpcli:
+    working_directory: ~/project
+    docker:
+      - image: google/cloud-sdk:latest
+    steps:
+      - run:
+          command: |
+            apt-get install lynx
+            lynx https://develop-270505.appspot.com
+          name: check_url
       
 workflows:
   version: 2.1
   install_and_check:
     jobs:
       - build_gcpcli
-      - test_gcpcli_ver:
+      - test_gcpcli:
           requires:
             - build_gcpcli
           filters:
             branches:
               only: master
-      - deploy_gcpcli:
-          requires:
-            - build_gcpcli
+
 
