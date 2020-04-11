@@ -39,7 +39,8 @@ jobs:
     steps:
       - run:
           command: |
-            curl -o result.html https://develop-270505.appspot.com
+            export GET_URL = "https://$GOOGLE_PROJECT_ID.appspot.com"
+            curl -o result.html $GET_URL
             cat result.html
           name: check_webpage
       

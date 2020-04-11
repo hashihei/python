@@ -1,23 +1,57 @@
+version: 2.1
+
+#名前空間にgcpをインポート
+orbs:
+  gcp-cli: circleci/gcp-cli@1.8.4
+
 jobs:
-  build:
+  build_gcpcli:
+    working_directory: ~/project
     docker:
       - image: google/cloud-sdk:latest
-    working_directory: ~/circleci/google_app_engine
     steps:
-      - checkout
-      - gcp-cli/initialize
       - run:
-        name: Deploy to Google App Engine
-        command: |
-          ls -ltr
-          tree
-          gcloud --quiet app deploy ~/circleci/google_app_engine/app.yaml
-orbs:
-  cloudrun: circleci/gcp-cli@1.8.4
-version: 2.1
+          command: |
+            # Initialize gcloud CLI
+            echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+            gcloud --quiet config set project $GOOGLE_PROJECT_ID
+            gcloud --quiet config set compute/zone $GOOGLE_COMPUTE_ZONE
+          name: Initialize gcloud CLI to connect to Google Cloud
+      - checkout
+      - run:
+          command: |
+            #check gcloud version
+            gcloud version
+          name: Gcloud version
+      - run:
+          name: check directory.
+          command: |
+            ls -ltr ./circleci/google_app_engine
+      - run:
+          command: |
+            gcloud --quiet app deploy ./circleci/google_app_engine/app.yaml
+          name: deploy google app engine.
+
+  test_gcpcli:
+    working_directory: ~/project
+    docker:
+      - image: circleci/python
+    steps:
+      - run:
+          command: |
+            
+            curl -o result.html https://develop-270505.appspot.com
+            cat result.html
+          name: check_webpage
+      
 workflows:
-  install_and_configure_cli:
+  version: 2.1
+  install_and_check:
     jobs:
-      - gcp-cli/install_and_initialize_cli:
-          context: myContext
-          executor: gcp-cli/default
+      - build_gcpcli
+      - test_gcpcli:
+          requires:
+            - build_gcpcli
+          filters:
+            branches:
+              only: master
