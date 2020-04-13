@@ -22,7 +22,9 @@ jobs:
           command: |
             #check gcloud version
             gcloud version
+            #install
             apt-get install google-cloud-sdk-app-engine-python
+            apt-get install python3-venv
       - checkout
       - run:
           name: install local test environment.
