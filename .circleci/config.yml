@@ -35,11 +35,12 @@ jobs:
             pip install -r requirements.txt
             pwd
             ls -ltr
-            python main.py &
+            python main.py & > deploylog.txt
+            cat deploylog.txt
       - run:
           name: test_check_webpage
           command: |
-            export GET_URL="https://localhost:8080"
+            export GET_URL="http://127.0.0.1:8080"
             curl -o result_local.html $GET_URL
             cat result_local.html
 
