@@ -22,7 +22,7 @@ jobs:
           command: |
             #check gcloud version
             gcloud version
-            gcloud components install app-engine-python
+            sudo apt-get install google-cloud-sdk-app-engine-python
       - checkout
       - run:
           name: install local test environment.
