@@ -27,7 +27,7 @@ jobs:
             apt-get install -y python3-venv
       - checkout
       - run:
-          name: install local test environment.
+          name: local test.
           command: |
             cd circleci/google_app_engine
             python3 -m venv env
@@ -38,13 +38,10 @@ jobs:
             python main.py & > deploylog.txt
             sleep 30
             cat deploylog.txt
-          background: true
-      - run:
-          name: test_check_webpage
-          command: |
             export GET_URL="http://127.0.0.1:8080"
             curl -o result_local.html $GET_URL
             cat result_local.html
+          background: true            
 
   deploy_gcpcli:
     working_directory: ~/project
