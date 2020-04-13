@@ -38,6 +38,7 @@ jobs:
             python main.py & > deploylog.txt
             sleep 30
             cat deploylog.txt
+          background: true
       - run:
           name: test_check_webpage
           command: |
