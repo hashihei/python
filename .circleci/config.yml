@@ -11,28 +11,64 @@ jobs:
       - image: google/cloud-sdk:latest
     steps:
       - run:
+          name: Initialize gcloud CLI to connect to Google Cloud
           command: |
             # Initialize gcloud CLI
             echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
             gcloud --quiet config set project $GOOGLE_PROJECT_ID
             gcloud --quiet config set compute/zone $GOOGLE_COMPUTE_ZONE
-          name: Initialize gcloud CLI to connect to Google Cloud
-      - checkout
       - run:
+          name: Gcloud version check and install components.
           command: |
             #check gcloud version
             gcloud version
-          name: Gcloud version
+            gcloud components install app-engine-python
+      - checkout
       - run:
-          name: check directory.
+          name: install local test environment.
           command: |
-            ls -ltr ./circleci/google_app_engine
+            cd .circleci/google_app_engine
+            python3 -m venv env
+            source env/bin/activate
+            pip install -r requirements.txt
       - run:
+          name: check and chenge current directory.
           command: |
-            gcloud --quiet app deploy ./circleci/google_app_engine/app.yaml
-          name: deploy google app engine.
+            pwd
+            ls -ltr
+      - run:
+          name: local test flask code.
+          command: |
+            python main.py
 
   test_gcpcli:
+    working_directory: ~/project
+    docker:
+      - image: circleci/python
+    steps:
+      - run:
+          name: check_webpage
+          command: |
+            export GET_URL="https://localhost:8080"
+            curl -o result_local.html $GET_URL
+            cat result_local.html
+
+  deploy_gcpcli:
+    working_directory: ~/project
+    docker:
+      - image: google/cloud-sdk:latest
+    steps:
+      - run:
+          name: Gcloud version
+          command: |
+            #check gcloud version
+            gcloud version
+      - run:
+          name: deploy google app engine.
+          command: |
+            gcloud --quiet app deploy ./circleci/google_app_engine/app.yaml
+
+  deploy_aftertest_gcpcli:
     working_directory: ~/project
     docker:
       - image: circleci/python
@@ -52,8 +88,16 @@ workflows:
       - test_gcpcli:
           requires:
             - build_gcpcli
+      - deploy_gcpcli:
+          requires:
+            - build_gcpcli
+            - test_gcpcli
           filters:
             branches:
               only: master
-
-
+      - deploy_aftertest_gcpcli:
+          requires:
+            - deploy_gcpcli
+          filters:
+            branches:
+              only: master
