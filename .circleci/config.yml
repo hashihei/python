@@ -3,6 +3,7 @@ version: 2.1
 #名前空間にgcpをインポート
 orbs:
   gcp-cli: circleci/gcp-cli@1.8.4
+  browser-tools: circleci/browser-tools@0.1.4
 
 jobs:
   build_gcpcli:
@@ -28,6 +29,14 @@ jobs:
       - checkout
       - run: mkdir test-reports
       - run:
+          name: Download and run Selenium.
+          command: |
+            curl -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar
+            java -jar selenium-server-standalone-3.5.3.jar -log test-reports/selenium.log
+          background: true
+      - restore_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
+      - run:
           name: local test.
           command: |
             ls -ltr
@@ -38,13 +47,19 @@ jobs:
             pip install -r requirements.txt
             pwd
             ls -ltr
-            python3 main.py & > deploylog.txt
+            python3 main.py &
             sleep 30
-            cat deploylog.txt
 #            export GET_URL="http://127.0.0.1:8080"
 #            curl -o result_local.html $GET_URL
 #            cat result_local.html
 #          background: true            
+
+      - store_artifacts:
+          path: test-reports/
+          destination: tr1
+      - store_test_results:
+          path: test-reports/
+
 
   deploy_gcpcli:
     working_directory: ~/project
