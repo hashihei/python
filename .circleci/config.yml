@@ -36,7 +36,7 @@ jobs:
             pwd
             ls -ltr
             python main.py & > deploylog.txt
-            wait 30
+            sleep 30
             cat deploylog.txt
       - run:
           name: test_check_webpage
