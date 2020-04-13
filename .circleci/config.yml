@@ -26,12 +26,13 @@ jobs:
             apt-get install -y google-cloud-sdk-app-engine-python
             apt-get install -y python3-venv
       - checkout
+      - run: mkdir test-reports
       - run:
           name: local test.
           command: |
             ls -ltr
             cd circleci/google_app_engine
-            python -m venv env
+            python3 -m venv env
             source env/bin/activate
             ls -ltr
             pip install -r requirements.txt
