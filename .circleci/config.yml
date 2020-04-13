@@ -36,11 +36,11 @@ jobs:
             source env/bin/activate
             ls -ltr
             pip install -r requirements.txt
-#            pwd
-#            ls -ltr
-#            python main.py & > deploylog.txt
-#            sleep 30
-#            cat deploylog.txt
+            pwd
+            ls -ltr
+            python3 main.py & > deploylog.txt
+            sleep 30
+            cat deploylog.txt
 #            export GET_URL="http://127.0.0.1:8080"
 #            curl -o result_local.html $GET_URL
 #            cat result_local.html
