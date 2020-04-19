@@ -1,4 +1,10 @@
 version: 2.1
+executors:
+  build-deploy-executor:
+    working_directory: ~/project
+    docker:
+      - image: google/cloud-sdk:latest
+
 
 #名前空間にgcpをインポート
 orbs:
@@ -7,9 +13,7 @@ orbs:
 
 jobs:
   build_gcpcli:
-    working_directory: ~/project
-    docker:
-      - image: google/cloud-sdk:latest
+    executor: build-deploy-executor
     steps:
       - run:
           name: Initialize gcloud CLI to connect to Google Cloud
@@ -38,9 +42,7 @@ jobs:
 
 
   deploy_all_gcpcli:
-    working_directory: ~/project
-    docker:
-      - image: google/cloud-sdk:latest
+    executor: build-deploy-executor
     steps:
       - run:
           name: Gcloud version
@@ -52,11 +54,19 @@ jobs:
           command: |
             gcloud --quiet app deploy ./circleci/google_app_engine/app.yaml --version=test
       - run:
-          name: check_webpage
+          name: test:check_webpage
           command: |
             export GET_URL="https://$GOOGLE_PROJECT_ID.appspot.com"
             curl -o result.html $GET_URL
-            cat result.html
+            cat result_deploy_all.html
+
+      - run:
+          name: for_artifacts
+          command: |
+            mkdir /tmp/dumps
+            cp -p result _deploy_all.html /tmp/dumps
+      - store_artifacts:
+          path: /tmp/dumps
 
   deploy_master_gcpcli:
     working_directory: ~/project
@@ -73,7 +83,7 @@ jobs:
           command: |
             gcloud --quiet app deploy ./circleci/google_app_engine/app.yaml
       - run:
-          name: check_webpage
+          name: test:check_webpage
           command: |
             export GET_URL="https://$GOOGLE_PROJECT_ID.appspot.com"
             curl -o result.html $GET_URL
