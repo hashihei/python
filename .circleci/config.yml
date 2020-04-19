@@ -28,32 +28,8 @@ jobs:
             apt-get install -y python3-venv
       - checkout
       - run: mkdir test-reports
-      - run:
-          name: Download and run Selenium.
-          command: |
-            curl -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar
-            java -jar selenium-server-standalone-3.5.3.jar -log test-reports/selenium.log
-          background: true
       - restore_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
-      - run:
-          name: local test.
-          command: |
-            ls -ltr
-            cd circleci/google_app_engine
-            python3 -m venv env
-            source env/bin/activate
-            ls -ltr
-            pip install -r requirements.txt
-            pwd
-            ls -ltr
-            python3 main.py > test-reports/mainpy.log 2>&1
-            sleep 30
-#            export GET_URL="http://127.0.0.1:8080"
-#            curl -o result_local.html $GET_URL
-#            cat result_local.html
-          background: true            
-
       - store_artifacts:
           path: test-reports/
           destination: tr1
@@ -61,7 +37,28 @@ jobs:
           path: test-reports/
 
 
-  deploy_gcpcli:
+  deploy_all_gcpcli:
+    working_directory: ~/project
+    docker:
+      - image: google/cloud-sdk:latest
+    steps:
+      - run:
+          name: Gcloud version
+          command: |
+            #check gcloud version
+            gcloud version
+      - run:
+          name: deploy google app engine.
+          command: |
+            gcloud --quiet app deploy ./circleci/google_app_engine/app.yaml --version=test
+      - run:
+          name: check_webpage
+          command: |
+            export GET_URL="https://$GOOGLE_PROJECT_ID.appspot.com"
+            curl -o result.html $GET_URL
+            cat result.html
+
+  deploy_master_gcpcli:
     working_directory: ~/project
     docker:
       - image: google/cloud-sdk:latest
@@ -75,31 +72,24 @@ jobs:
           name: deploy google app engine.
           command: |
             gcloud --quiet app deploy ./circleci/google_app_engine/app.yaml
-
-  deploy_aftertest_gcpcli:
-    working_directory: ~/project
-    docker:
-      - image: circleci/python
-    steps:
       - run:
+          name: check_webpage
           command: |
             export GET_URL="https://$GOOGLE_PROJECT_ID.appspot.com"
             curl -o result.html $GET_URL
             cat result.html
-          name: check_webpage
+
+
       
 workflows:
   version: 2.1
   install_and_check:
     jobs:
       - build_gcpcli
-      - deploy_gcpcli:
+      - deploy_all_gcpcli:
           requires:
             - build_gcpcli
-          filters:
-            branches:
-              only: master
-      - deploy_aftertest_gcpcli:
+      - deploy_master_gcpcli:
           requires:
             - deploy_gcpcli
           filters:
