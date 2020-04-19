@@ -91,7 +91,7 @@ workflows:
             - build_gcpcli
       - deploy_master_gcpcli:
           requires:
-            - deploy_gcpcli
+            - deploy_all_gcpcli
           filters:
             branches:
               only: master
