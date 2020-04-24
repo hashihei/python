@@ -16,6 +16,40 @@ jobs:
     executor: build-deploy-executor
     steps:
       - run:
+          name: install python3 venv.
+          command: |
+            #install
+            apt-get install -y python3-venv
+      - run:
+          name: install python lib.
+          command: |
+            cd circleci/google_app_engine
+            python3 -m venv env
+            source env/bin/activate
+            pip install -r requirements.txt
+      - checkout
+      - save_cache:
+          key: deps1-{{ .Branch }}-{{ checksum dev.txt" }}
+          paths:
+            - "venv"
+      - run:
+          name: test.
+          command: |
+            cd circleci/google_app_engine
+            . venv/bin/activate
+            pytest test_main.py > pytestlog.txt
+            mkdir /tmp/dumps
+            cp -p pytestlog.txt /tmp/dumps
+      - store_artifacts:
+          path: /tmp/dumps
+          destination: tr1
+      - store_test_results:
+          path: /tmp/dumps
+
+  deploy_all_gcpcli:
+    executor: build-deploy-executor
+    steps:
+      - run:
           name: Initialize gcloud CLI to connect to Google Cloud
           command: |
             # Initialize gcloud CLI
@@ -29,26 +63,6 @@ jobs:
             gcloud version
             #install
             apt-get install -y google-cloud-sdk-app-engine-python
-            apt-get install -y python3-venv
-      - checkout
-      - run: mkdir test-reports
-      - restore_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
-      - store_artifacts:
-          path: test-reports/
-          destination: tr1
-      - store_test_results:
-          path: test-reports/
-
-
-  deploy_all_gcpcli:
-    executor: build-deploy-executor
-    steps:
-      - run:
-          name: Gcloud version
-          command: |
-            #check gcloud version
-            gcloud version
       - run:
           name: deploy google app engine.
           command: |
@@ -59,37 +73,10 @@ jobs:
             export GET_URL="https://$GOOGLE_PROJECT_ID.appspot.com"
             curl -o result.html $GET_URL
             cat result_deploy_all.html
-
-      - run:
-          name: for_artifacts
-          command: |
             mkdir /tmp/dumps
-            cp -p result _deploy_all.html /tmp/dumps
+            cp -p result_deploy_all.html /tmp/dumps
       - store_artifacts:
           path: /tmp/dumps
-
-  deploy_master_gcpcli:
-    working_directory: ~/project
-    docker:
-      - image: google/cloud-sdk:latest
-    steps:
-      - run:
-          name: Gcloud version
-          command: |
-            #check gcloud version
-            gcloud version
-      - run:
-          name: deploy google app engine.
-          command: |
-            gcloud --quiet app deploy ./circleci/google_app_engine/app.yaml
-      - run:
-          name: test:check_webpage
-          command: |
-            export GET_URL="https://$GOOGLE_PROJECT_ID.appspot.com"
-            curl -o result.html $GET_URL
-            cat result.html
-
-
       
 workflows:
   version: 2.1
@@ -99,9 +86,3 @@ workflows:
       - deploy_all_gcpcli:
           requires:
             - build_gcpcli
-      - deploy_master_gcpcli:
-          requires:
-            - deploy_all_gcpcli
-          filters:
-            branches:
-              only: master
