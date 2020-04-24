@@ -20,6 +20,7 @@ jobs:
           command: |
             #install
             apt-get install -y python3-venv
+      - checkout
       - run:
           name: install python lib.
           command: |
@@ -27,7 +28,6 @@ jobs:
             python3 -m venv env
             source env/bin/activate
             pip install -r requirements.txt
-      - checkout
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum dev.txt" }}
           paths:
