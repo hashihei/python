@@ -82,13 +82,16 @@ jobs:
       - run:
           name: service up main.py
           command: |
+            ls
+            ls ~/project/circleci/google_app_engine/
             source ~/project/circleci/google_app_engine/env/bin/activate
             python3 ~/project/circleci/google_app_engine/main.py > test-reports/pylog
           background: true
-          
+
       - run:
           name: test:check_webpage
           command: |
+            netstat -tanp
             export GET_URL="http://127.0.0.1:8080/"
             curl -o result.html $GET_URL
             cat result.html
