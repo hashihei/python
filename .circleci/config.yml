@@ -45,6 +45,8 @@ jobs:
             python3 main.py > pylog.txt &
             pytest test_main.py > pytestlog.xml &
             ls -ltr
+            cat pylog.txt
+            cat pytestlog.xml
             cp -p pylog.txt test-reports/py/
             cp -p pytestlog.xml test-reports/pytest/
           background: true
