@@ -147,7 +147,7 @@ workflows:
   install_and_check:
     jobs:
       - build_gcpcli
-      - local_test_gcpcli
+      - local_test_gcpcli:
           filters:
             branches:
               ignore:
