@@ -38,26 +38,24 @@ jobs:
       - run:
           name: make directory
           command: |
-            mkdir -pv ~/test-reports/py
-            mkdir -pv ~/test-reports/pytest
+            mkdir -pv test-reports
       
       - run:
           name: service up main.py
           command: |
-            source ~/project/circleci/google_app_engine/env/bin/activate
-            python3 ~/project/circleci/google_app_engine/main.py > ~/test-reports/py/pylog.txt
+            source project/circleci/google_app_engine/env/bin/activate
+            python3 project/circleci/google_app_engine/main.py > test-reports/pylog
           background: true
 
       - run:
           name: pytest.
           command: |
-            source ~/project/circleci/google_app_engine/env/bin/activate
-            pytest -rapP --durations=10  ~/project/circleci/google_app_engine/test_main.py > ~/test-reports/pytest/pytestlog.txt
-            cat ~/test-reports/pytest/pytestlog.txt
+            source project/circleci/google_app_engine/env/bin/activate
+            pytest -rapP --durations=10  --junitxml=test-results/junit.xml ~/project/circleci/google_app_engine/test_main.py
       - store_artifacts:
-          path: /root/project/circleci/google_app_engine/test-reports/py/pylog.txt
+          path: test-reports
       - store_test_results:
-          path: /root/project/circleci/google_app_engine/test-reports/
+          path: test-reports
       - add_ssh_keys:
           fingerprints:
             - '3e:ac:02:a3:62:26:ca:78:af:67:f7:9c:f0:68:43:22'
