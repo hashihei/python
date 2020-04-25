@@ -1,5 +1,5 @@
 import main
-
+import pytest
 
 def test_index():
     main.app.testing = True
