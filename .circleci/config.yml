@@ -39,19 +39,20 @@ jobs:
           command: |
             cd circleci/google_app_engine
             pwd
-            mkdir test-reports
+            mkdir test-reports/py
+            mkdir test-reports/pytest
             source env/bin/activate
+            pytest test_main.py > pytestlog.xml &
             python3 main.py > pylog.txt &
-            pytest test_main.py > pytestlog.txt &
             ls -ltr
-            cp -p *.txt test-reports/
-            ls test-reports/
+            cp -p pylog.txt test-reports/py/
+            cp -p pytestlog.xml test-reports/pytest/
+            tree test-reports/
           background: true
       - store_artifacts:
-          path: /root/project/circleci/google_app_engine/test-reports/
-          destination: tr1
+          path: /root/project/circleci/google_app_engine/test-reports/pylog.txt
       - store_test_results:
-          path: /root/project/circleci/google_app_engine/test-reports/
+          path: /root/project/circleci/google_app_engine/test-reports
       - add_ssh_keys:
           fingerprints:
             - '3e:ac:02:a3:62:26:ca:78:af:67:f7:9c:f0:68:43:22'
