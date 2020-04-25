@@ -44,7 +44,7 @@ jobs:
       - run:
           name: service up main.py
           command: |
-            ls ~/project/circleci/google_app_engine/
+            source ~/project/circleci/google_app_engine/env/bin/activate
             python3 ~/project/circleci/google_app_engine/main.py > ~/test-reports/py/pylog.txt
           background: true
 
