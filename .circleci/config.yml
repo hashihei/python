@@ -37,17 +37,18 @@ jobs:
       - run:
           name: test.
           command: |
+            cd circleci/google_app_engine
             ls
-            #cd circleci/google_app_engine
+            pwd
             . venv/bin/activate
             pytest test_main.py > pytestlog.txt
-            mkdir /tmp/dumps
+            mkdir /test-reports
             cp -p pytestlog.txt /tmp/dumps
       - store_artifacts:
-          path: /tmp/dumps
+          path: test-reports/
           destination: tr1
       - store_test_results:
-          path: /tmp/dumps
+          path: test-reports/
       - add_ssh_keys:
           fingerprints:
             - '3e:ac:02:a3:62:26:ca:78:af:67:f7:9c:f0:68:43:22'
