@@ -15,12 +15,14 @@ jobs:
   build_gcpcli:
     executor: build-deploy-executor
     steps:
+      - checkout
       - run:
           name: install python3 venv.
           command: |
             #install
             apt-get install -y python3-venv
-      - checkout
+      - restore_cache:
+          key: deps2-{{ .Branch }}-{{ checksum "circleci/google_app_engine/.circleci/dev.txt" }}
       - run:
           name: install python lib.
           command: |
@@ -29,13 +31,14 @@ jobs:
             source env/bin/activate
             pip install -r requirements.txt
       - save_cache:
-          key: deps1-{{ .Branch }}-{{ checksum dev.txt" }}
+          key: deps2-{{ .Branch }}-{{ checksum "circleci/google_app_engine/.circleci/dev.txt" }}
           paths:
-            - "venv"
+            - 'venv'
       - run:
           name: test.
           command: |
-            cd circleci/google_app_engine
+            ls
+            #cd circleci/google_app_engine
             . venv/bin/activate
             pytest test_main.py > pytestlog.txt
             mkdir /tmp/dumps
@@ -45,6 +48,9 @@ jobs:
           destination: tr1
       - store_test_results:
           path: /tmp/dumps
+      - add_ssh_keys:
+          fingerprints:
+            - '3e:ac:02:a3:62:26:ca:78:af:67:f7:9c:f0:68:43:22'
 
   deploy_all_gcpcli:
     executor: build-deploy-executor
@@ -63,6 +69,13 @@ jobs:
             gcloud version
             #install
             apt-get install -y google-cloud-sdk-app-engine-python
+      
+      - run:
+          name: test gcp local.
+          command: |
+            ls
+          background: true
+
       - run:
           name: deploy google app engine.
           command: |
