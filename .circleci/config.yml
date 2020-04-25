@@ -91,6 +91,7 @@ jobs:
       - run:
           name: test:check_webpage
           command: |
+            # sleep : wait daemon
             sleep 5
             ss -aep
             export GET_URL="http://127.0.0.1:8080/"
@@ -147,6 +148,10 @@ workflows:
     jobs:
       - build_gcpcli
       - local_test_gcpcli
+          filters:
+            branches:
+              ignore:
+                - master
       - deploy_all_gcpcli:
           requires:
             - build_gcpcli
