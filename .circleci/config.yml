@@ -46,8 +46,8 @@ jobs:
             pytest -rapP --durations=10  test_main.py > pytestlog.txt
             ls -ltr
             cat pytestlog.txt
-            cat pylog.txt
-            cp -p pylog.txt test-reports/py/
+            #cat pylog.txt
+            #cp -p pylog.txt test-reports/py/
             cp -p pytestlog.txt test-reports/pytest/
           background: true
       - store_artifacts:
