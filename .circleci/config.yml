@@ -42,12 +42,11 @@ jobs:
             mkdir -pv test-reports/py
             mkdir -pv test-reports/pytest
             source env/bin/activate
-            pytest test_main.py > pytestlog.xml &
             python3 main.py > pylog.txt &
+            pytest test_main.py > pytestlog.xml &
             ls -ltr
             cp -p pylog.txt test-reports/py/
             cp -p pytestlog.xml test-reports/pytest/
-            tree test-reports/
           background: true
       - store_artifacts:
           path: /root/project/circleci/google_app_engine/test-reports/pylog.txt
