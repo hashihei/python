@@ -38,13 +38,6 @@ jobs:
           name: make directory
           command: |
             mkdir -pv test-reports
-      
-      - run:
-          name: service up main.py
-          command: |
-            source ~/project/circleci/google_app_engine/env/bin/activate
-            python3 ~/project/circleci/google_app_engine/main.py > test-reports/pylog
-          background: true
 
       - run:
           name: pytest.
@@ -58,6 +51,57 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - '3e:ac:02:a3:62:26:ca:78:af:67:f7:9c:f0:68:43:22'
+
+  local_test_gcpcli:
+    executor: build-deploy-executor
+    steps:
+      - checkout
+      - run:
+          name: install python3 venv.
+          command: |
+            #install
+            apt-get install -y python3-venv
+      - restore_cache:
+          key: deps2-{{ .Branch }}-{{ checksum "circleci/google_app_engine/.circleci/dev.txt" }}
+      - run:
+          name: install python lib.
+          command: |
+            python3 -m venv ~/project/circleci/google_app_engine/env
+            source ~/project/circleci/google_app_engine/env/bin/activate
+            pip install -r ~/project/circleci/google_app_engine/requirements.txt
+      - save_cache:
+          key: deps2-{{ .Branch }}-{{ checksum "circleci/google_app_engine/.circleci/dev.txt" }}
+          paths:
+            - 'env'
+            
+      - run:
+          name: make directory
+          command: |
+            mkdir -pv test-reports
+      
+      - run:
+          name: service up main.py
+          command: |
+            source ~/project/circleci/google_app_engine/env/bin/activate
+            python3 ~/project/circleci/google_app_engine/main.py > test-reports/pylog
+          background: true
+          
+      - run:
+          name: test:check_webpage
+          command: |
+            export GET_URL="http://127.0.0.1:8080/"
+            curl -o result.html $GET_URL
+            cat result.html
+            cp -p result.html test-reports
+      - store_artifacts:
+          path: test-reports
+      - store_test_results:
+          path: test-reports
+      - add_ssh_keys:
+          fingerprints:
+            - '3e:ac:02:a3:62:26:ca:78:af:67:f7:9c:f0:68:43:22'
+
+
 
   deploy_all_gcpcli:
     executor: build-deploy-executor
@@ -77,12 +121,6 @@ jobs:
             gcloud version
             #install
             apt-get install -y google-cloud-sdk-app-engine-python
-      
-      - run:
-          name: test gcp local.
-          command: |
-            ls
-          background: true
 
       - run:
           name: deploy google app engine.
@@ -104,6 +142,7 @@ workflows:
   install_and_check:
     jobs:
       - build_gcpcli
+      - local_test_gcpcli
       - deploy_all_gcpcli:
           requires:
             - build_gcpcli
