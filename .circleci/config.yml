@@ -51,7 +51,7 @@ jobs:
           name: pytest.
           command: |
             source project/circleci/google_app_engine/env/bin/activate
-            pytest -rapP --durations=10  --junitxml=test-results/junit.xml ~/project/circleci/google_app_engine/test_main.py
+            pytest -rapP --durations=10  --junitxml=test-reports/junit.xml ~/project/circleci/google_app_engine/test_main.py
       - store_artifacts:
           path: test-reports
       - store_test_results:
