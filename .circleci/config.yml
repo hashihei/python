@@ -33,17 +33,18 @@ jobs:
       - save_cache:
           key: deps2-{{ .Branch }}-{{ checksum "circleci/google_app_engine/.circleci/dev.txt" }}
           paths:
-            - 'venv'
+            - 'env'
       - run:
           name: test.
           command: |
             cd circleci/google_app_engine
             ls
             pwd
-            #source env/bin/activate
+            source env/bin/activate
+            python test_main.py > pylog.txt
             pytest test_main.py > pytestlog.txt
             mkdir test-reports
-            cp -p pytestlog.txt test-reports/
+            cp -p *.txt test-reports/
       - store_artifacts:
           path: test-reports/
           destination: tr1
