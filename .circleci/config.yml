@@ -42,13 +42,13 @@ jobs:
             mkdir -pv test-reports/py
             mkdir -pv test-reports/pytest
             source env/bin/activate
-            nohup python3 main.py > pylog.txt &
-            pytest -raP --durations test_main.py
+            nohup python3 main.py > pylog.txt
+            pytest -rapP --durations=10  test_main.py > pytestlog.txt
             ls -ltr
-            cat pytestlog.xml
+            cat pytestlog.txt
             cat pylog.txt
             cp -p pylog.txt test-reports/py/
-            cp -p pytestlog.xml test-reports/pytest/
+            cp -p pytestlog.txt test-reports/pytest/
           background: true
       - store_artifacts:
           path: /root/project/circleci/google_app_engine/test-reports/pylog.txt
