@@ -45,6 +45,7 @@ jobs:
             python3 main.py > pylog.txt
             pytest test_main.py > pytestlog.txt
             cp -p *.txt test-reports/
+          background: true
       - store_artifacts:
           path: test-reports/
           destination: tr1
