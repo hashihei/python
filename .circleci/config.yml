@@ -34,26 +34,29 @@ jobs:
           key: deps2-{{ .Branch }}-{{ checksum "circleci/google_app_engine/.circleci/dev.txt" }}
           paths:
             - 'env'
+            
       - run:
-          name: test.
+          name: make directory
           command: |
-            cd circleci/google_app_engine
-            pwd
-            mkdir -pv test-reports/py
-            mkdir -pv test-reports/pytest
-            #source env/bin/activate
-            #nohup python3 main.py > pylog.txt
-            pytest -rapP --durations=10  test_main.py > pytestlog.txt
-            ls -ltr
-            cat pytestlog.txt
-            #cat pylog.txt
-            #cp -p pylog.txt test-reports/py/
-            cp -p pytestlog.txt test-reports/pytest/
+            mkdir -pv ~/test-reports/py
+            mkdir -pv ~/test-reports/pytest
+      
+      - run:
+          name: service up main.py
+          command: |
+            nohup python3 ~/circleci/google_app_engine/main.py > ~/test-reports/py/pylog.txt
           background: true
+
+      - run:
+          name: pytest.
+          command: |
+            source env/bin/activate
+            pytest -rapP --durations=10  test_main.py > ~/test-reports/pytest/pytestlog.txt
+            cat ~/test-reports/pytest/pytestlog.txt
       - store_artifacts:
-          path: /root/project/circleci/google_app_engine/test-reports/pylog.txt
+          path: /root/project/circleci/google_app_engine/test-reports/py/pylog.txt
       - store_test_results:
-          path: /root/project/circleci/google_app_engine/test-reports
+          path: /root/project/circleci/google_app_engine/test-reports/
       - add_ssh_keys:
           fingerprints:
             - '3e:ac:02:a3:62:26:ca:78:af:67:f7:9c:f0:68:43:22'
