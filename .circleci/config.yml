@@ -44,14 +44,14 @@ jobs:
       - run:
           name: service up main.py
           command: |
-            ls ~/circleci/google_app_engine/
-            nohup python3 ~/circleci/google_app_engine/main.py > ~/test-reports/py/pylog.txt
+            ls ~/project/circleci/google_app_engine/
+            nohup python3 ~/project/circleci/google_app_engine/main.py > ~/test-reports/py/pylog.txt
           background: true
 
       - run:
           name: pytest.
           command: |
-            source ~/circleci/google_app_engine/env/bin/activate
+            source ~/project/circleci/google_app_engine/env/bin/activate
             pytest -rapP --durations=10  test_main.py > ~/test-reports/pytest/pytestlog.txt
             cat ~/test-reports/pytest/pytestlog.txt
       - store_artifacts:
