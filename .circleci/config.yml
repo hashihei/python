@@ -40,7 +40,7 @@ jobs:
             cd circleci/google_app_engine
             ls
             pwd
-            source env/bin/activate
+            #source env/bin/activate
             pytest test_main.py > pytestlog.txt
             mkdir test-reports
             cp -p pytestlog.txt test-reports/
