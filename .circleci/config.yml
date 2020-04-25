@@ -42,11 +42,11 @@ jobs:
             mkdir -pv test-reports/py
             mkdir -pv test-reports/pytest
             source env/bin/activate
-            python3 main.py > pylog.txt &
-            pytest test_main.py > pytestlog.xml &
+            nohup python3 main.py > pylog.txt &
+            pytest -raP --durations test_main.py
             ls -ltr
-            cat pylog.txt
             cat pytestlog.xml
+            cat pylog.txt
             cp -p pylog.txt test-reports/py/
             cp -p pytestlog.xml test-reports/pytest/
           background: true
