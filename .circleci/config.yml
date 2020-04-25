@@ -42,7 +42,7 @@ jobs:
             mkdir -pv test-reports/py
             mkdir -pv test-reports/pytest
             source env/bin/activate
-            nohup python3 main.py > pylog.txt
+            #nohup python3 main.py > pylog.txt
             pytest -rapP --durations=10  test_main.py > pytestlog.txt
             ls -ltr
             cat pytestlog.txt
