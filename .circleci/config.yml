@@ -39,8 +39,8 @@ jobs:
           command: |
             cd circleci/google_app_engine
             pwd
-            mkdir test-reports/py
-            mkdir test-reports/pytest
+            mkdir -pv test-reports/py
+            mkdir -pv test-reports/pytest
             source env/bin/activate
             pytest test_main.py > pytestlog.xml &
             python3 main.py > pylog.txt &
@@ -105,3 +105,6 @@ workflows:
       - deploy_all_gcpcli:
           requires:
             - build_gcpcli
+          branches:
+            only:
+              - master
