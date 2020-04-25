@@ -34,13 +34,13 @@ jobs:
           key: deps2-{{ .Branch }}-{{ checksum "circleci/google_app_engine/.circleci/dev.txt" }}
           paths:
             - 'env'
+      - run: mkdir test-reports
       - run:
           name: test.
           command: |
             cd circleci/google_app_engine
             ls
             pwd
-            mkdir test-reports
             source env/bin/activate
             python3 main.py > pylog.txt
             pytest test_main.py > pytestlog.txt
