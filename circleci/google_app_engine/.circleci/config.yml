@@ -1,15 +1,117 @@
 version: 2.1
+executors:
+  build-deploy-executor:
+    working_directory: ~/project
+    docker:
+      - image: google/cloud-sdk:latest
+
 
 #名前空間にgcpをインポート
 orbs:
   gcp-cli: circleci/gcp-cli@1.8.4
+  browser-tools: circleci/browser-tools@0.1.4
 
 jobs:
   build_gcpcli:
-    working_directory: ~/project
-    docker:
-      - image: google/cloud-sdk:latest
+    executor: build-deploy-executor
     steps:
+      - checkout
+      - run:
+          name: install python3 venv.
+          command: |
+            #install
+            apt-get install -y python3-venv
+      - restore_cache:
+          key: deps2-{{ .Branch }}-{{ checksum "circleci/google_app_engine/.circleci/dev.txt" }}
+      - run:
+          name: install python lib.
+          command: |
+            python3 -m venv ~/project/circleci/google_app_engine/env
+            source ~/project/circleci/google_app_engine/env/bin/activate
+            pip install -r ~/project/circleci/google_app_engine/requirements.txt
+      - save_cache:
+          key: deps2-{{ .Branch }}-{{ checksum "circleci/google_app_engine/.circleci/dev.txt" }}
+          paths:
+            - 'env'
+            
+      - run:
+          name: make directory
+          command: |
+            mkdir -pv test-reports
+
+      - run:
+          name: pytest.
+          command: |
+            source ~/project/circleci/google_app_engine/env/bin/activate
+            pytest -rapP --durations=10  --junitxml=test-reports/junit.xml ~/project/circleci/google_app_engine/test_main.py
+      - store_artifacts:
+          path: test-reports
+      - store_test_results:
+          path: test-reports
+      - add_ssh_keys:
+          fingerprints:
+            - '3e:ac:02:a3:62:26:ca:78:af:67:f7:9c:f0:68:43:22'
+
+  local_test_gcpcli:
+    executor: build-deploy-executor
+    steps:
+      - checkout
+      - run:
+          name: install python3 venv.
+          command: |
+            #install
+            apt-get install -y python3-venv
+      - restore_cache:
+          key: deps2-{{ .Branch }}-{{ checksum "circleci/google_app_engine/.circleci/dev.txt" }}
+      - run:
+          name: install python lib.
+          command: |
+            python3 -m venv ~/project/circleci/google_app_engine/env
+            source ~/project/circleci/google_app_engine/env/bin/activate
+            pip install -r ~/project/circleci/google_app_engine/requirements.txt
+      - save_cache:
+          key: deps2-{{ .Branch }}-{{ checksum "circleci/google_app_engine/.circleci/dev.txt" }}
+          paths:
+            - 'env'
+            
+      - run:
+          name: make directory
+          command: |
+            mkdir -pv test-reports
+      
+      - run:
+          name: service up main.py
+          command: |
+            ls
+            ls ~/project/circleci/google_app_engine/
+            source ~/project/circleci/google_app_engine/env/bin/activate
+            python3 ~/project/circleci/google_app_engine/main.py > test-reports/pylog
+          background: true
+
+      - run:
+          name: test:check_webpage
+          command: |
+            # sleep : wait daemon
+            sleep 5
+            ss -aep
+            export GET_URL="http://127.0.0.1:8080/"
+            curl -o result.html $GET_URL
+            cat result.html
+            cp -p result.html test-reports
+      - store_artifacts:
+          path: test-reports
+      - store_test_results:
+          path: test-reports
+      - add_ssh_keys:
+          fingerprints:
+            - '3e:ac:02:a3:62:26:ca:78:af:67:f7:9c:f0:68:43:22'
+
+
+
+  deploy_all_gcpcli:
+    executor: build-deploy-executor
+    steps:
+      - checkout
       - run:
           name: Initialize gcloud CLI to connect to Google Cloud
           command: |
@@ -22,84 +124,38 @@ jobs:
           command: |
             #check gcloud version
             gcloud version
-            gcloud components install app-engine-python
-      - checkout
-      - run:
-          name: install local test environment.
-          command: |
-            cd .circleci/google_app_engine
-            python3 -m venv env
-            source env/bin/activate
-            pip install -r requirements.txt
-      - run:
-          name: check and chenge current directory.
-          command: |
-            pwd
-            ls -ltr
-      - run:
-          name: local test flask code.
-          command: |
-            python main.py
+            #install
+            apt-get install -y google-cloud-sdk-app-engine-python
 
-  test_gcpcli:
-    working_directory: ~/project
-    docker:
-      - image: circleci/python
-    steps:
-      - run:
-          name: check_webpage
-          command: |
-            export GET_URL="https://localhost:8080"
-            curl -o result_local.html $GET_URL
-            cat result_local.html
-
-  deploy_gcpcli:
-    working_directory: ~/project
-    docker:
-      - image: google/cloud-sdk:latest
-    steps:
-      - run:
-          name: Gcloud version
-          command: |
-            #check gcloud version
-            gcloud version
       - run:
           name: deploy google app engine.
           command: |
-            gcloud --quiet app deploy ./circleci/google_app_engine/app.yaml
-
-  deploy_aftertest_gcpcli:
-    working_directory: ~/project
-    docker:
-      - image: circleci/python
-    steps:
+            gcloud --quiet app deploy ./circleci/google_app_engine/app.yaml --version=test
       - run:
+          name: test:check_webpage
           command: |
             export GET_URL="https://$GOOGLE_PROJECT_ID.appspot.com"
             curl -o result.html $GET_URL
             cat result.html
-          name: check_webpage
+            mkdir /tmp/dumps
+            cp -p result.html /tmp/dumps
+      - store_artifacts:
+          path: /tmp/dumps
       
 workflows:
   version: 2.1
   install_and_check:
     jobs:
       - build_gcpcli
-      - test_gcpcli:
-          requires:
-            - build_gcpcli
-      - deploy_gcpcli:
-          requires:
-            - build_gcpcli
-            - test_gcpcli
+      - local_test_gcpcli:
           filters:
             branches:
-              only: master
-      - deploy_aftertest_gcpcli:
+              ignore:
+                - master
+      - deploy_all_gcpcli:
           requires:
-            - deploy_gcpcli
+            - build_gcpcli
           filters:
             branches:
-              only: master
-
-
+              only:
+                - master
