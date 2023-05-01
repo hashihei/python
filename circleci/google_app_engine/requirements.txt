@@ -1,5 +1,5 @@
 #for prop
-Flask==1.1.1
+Flask==2.3.2
 
 #for test
 pytest
